@@ -11,7 +11,7 @@ CAFESCAN - 자리창출넘버원
 
 3.시스템 구성도
 -------------
->
+>![system](https://user-images.githubusercontent.com/48238562/56094223-d63bcb80-5f0c-11e9-9cd3-92a7245f1d84.png)
 
 4.데이터 흐름도
 -------------
