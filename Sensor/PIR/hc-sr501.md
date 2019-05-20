@@ -18,6 +18,7 @@
 ## PINOUT
 
 ![pinout](./images/hc-sr501_pinout.jpg)
+
 출처 : [LINK](https://www.theengineeringprojects.com/2019/01/introduction-to-hc-sr501.html)
 
 
