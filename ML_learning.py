@@ -2,31 +2,31 @@ import numpy as np
 from keras.models import Sequential
 from keras.layers import Dense
 
-# ·£´ı½Ãµå °íÁ¤½ÃÅ°±â
+# ëœë¤ì‹œë“œ ê³ ì •ì‹œí‚¤ê¸°
 np.random.seed(5)
 
-# 1. µ¥ÀÌÅÍ ÁØºñÇÏ±â
+# 1. ë°ì´í„° ì¤€ë¹„í•˜ê¸°
 dataset = np.loadtxt("./data.csv", delimiter=",")
 
-# 2. µ¥ÀÌÅÍ¼Â »ı¼ºÇÏ±â
+# 2. ë°ì´í„°ì…‹ ìƒì„±í•˜ê¸°
 x_train = dataset[:700,0:8]
 y_train = dataset[:700,8]
 x_test = dataset[700:,0:8]
 y_test = dataset[700:,8]
 
-# 3. ¸ğµ¨ ±¸¼ºÇÏ±â
+# 3. ëª¨ë¸ êµ¬ì„±í•˜ê¸°
 model = Sequential()
 model.add(Dense(12, input_dim=8, activation='relu'))
 model.add(Dense(8, activation='relu'))
 model.add(Dense(1, activation='sigmoid'))
 
-# 4. ¸ğµ¨ ÇĞ½À°úÁ¤ ¼³Á¤ÇÏ±â
+# 4. ëª¨ë¸ í•™ìŠµê³¼ì • ì„¤ì •í•˜ê¸°
 model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
 
-# 5. ¸ğµ¨ ÇĞ½À½ÃÅ°±â
+# 5. ëª¨ë¸ í•™ìŠµì‹œí‚¤ê¸°
 model.fit(x_train, y_train, epochs=3000, batch_size=128)
 
-# 6. ¸ğµ¨ Æò°¡ÇÏ±â
+# 6. ëª¨ë¸ í‰ê°€í•˜ê¸°
 scores = model.evaluate(x_test, y_test)
 print("%s: %.2f%%" %(model.metrics_names[1], scores[1]*100))
 
