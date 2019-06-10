@@ -1,35 +1,36 @@
+# Import modules
 import numpy as np
 from keras.models import Sequential
 from keras.layers import Dense
 
-# 랜덤시드 고정시키기
+# setting random seed
 np.random.seed(5)
 
-# 1. 데이터 준비하기
+# 1. Load dataset
 dataset = np.loadtxt("./data.csv", delimiter=",")
 
-# 2. 데이터셋 생성하기
+# 2. Reshaping the data
 x_train = dataset[:700,0:8]
 y_train = dataset[:700,8]
 x_test = dataset[700:,0:8]
 y_test = dataset[700:,8]
 
-# 3. 모델 구성하기
+# 3. Creating the DNN model and Adding layers to the model
 model = Sequential()
 model.add(Dense(12, input_dim=8, activation='relu'))
 model.add(Dense(8, activation='relu'))
 model.add(Dense(1, activation='sigmoid'))
 
-# 4. 모델 학습과정 설정하기
+# 4. Compiling the model
 model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
 
-# 5. 모델 학습시키기
+# 5. Training the model
 model.fit(x_train, y_train, epochs=3000, batch_size=128)
 
-# 6. 모델 평가하기
+# 6. Evaulating the model
 scores = model.evaluate(x_test, y_test)
 print("%s: %.2f%%" %(model.metrics_names[1], scores[1]*100))
 
-#7.saving the model
+#7.Saving the model
 from keras.models import load_model
 model.save('ML.h5')
