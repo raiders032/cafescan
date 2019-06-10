@@ -14,7 +14,7 @@ int vib =D8;     // DO for SW-420(진동감지)
 
 // Information to connect My Private Server EC2
 const char* private_server = "54.180.101.233"; 
-const int serverPort       = 3000;
+const int serverPort       = 4885;
 
 // Information to connect private Wifi
 const char* ssid     = "2363";
