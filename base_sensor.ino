@@ -1,107 +1,163 @@
-#include <Adafruit_MLX90614.h>
 #include <Wire.h>
 #include <ESP8266WiFi.h>
-#define PIN_A0 A0 // 아날로그 핀(A0)
-/*  참고
-static const uint8_t D0   = 16;
-static const uint8_t D1   = 5;
-static const uint8_t D2   = 4;
-static const uint8_t D3   = 0;
-static const uint8_t D4   = 2;
-static const uint8_t D5   = 14;
-static const uint8_t D6   = 12;
-static const uint8_t D7   = 13;
-static const uint8_t D8   = 15;
-static const uint8_t D9   = 3;
-static const uint8_t D10  = 1;
-*/
 
-Adafruit_MLX90614 mlx = Adafruit_MLX90614();  //적외선 온도 센서
-int sensor_sr501 = D3; //  D3 : 적외선 인체 감지센서
 
 const char* server2 = "3.16.161.61";
 //String apiKey ="XLTL6DFFAB7QER25";
-const char* MY_SSID = "SK_WiFiGIGAEDBC";
-//const char* MY_SSID = "3627";
-const char* MY_PWD = "1701012482";
-//const char* MY_PWD = "hyeongchan";
+//const char* MY_SSID = "SK_WiFiGIGAEDBC";
+const char* MY_SSID = "myWifi";
+//const char* MY_PWD = "1701012482";
+const char* MY_PWD = "myPassword";
 
 
-int id=1;
+int vib =D0;
+
+int echoPin = D1;
+int trigPin = D2;
+
+int echoPin2 = D3;
+int trigPin2 = D4;
+
+int echoPin3 = D5;
+int trigPin3 = D6;
+
+int echoPin4 = D7;
+int trigPin4 = D8;
+
+String C_id="001";            //cafe id
+String T_id="001";              //table id
+String S_id="001";    //seat id
+
+int presence_flag=0;     //presence of the table
+int idx;
+
+String len_payload[4];
+String vib_payload[4];
+#define IDX_SIZE 60
+
+// 실행시 가장 먼저 호출되는 함수이며, 최초 1회만 실행됩니다.
+// 변수를 선언하거나 초기화를 위한 코드를 포함합니다.
 void setup() {
-  // 시리얼 통신 초기화
+  // 적외선 장애물 감지 센서 핀을 INPUT으로 설정합니다.
+    idx=0;
+    for(int i=0;i<4;i++){
+      len_payload[i]="";
+      vib_payload[i]="";
+    }
+    connectWifi();//connecting WIFI
+    
+      pinMode(vib, INPUT);
+      pinMode(trigPin, OUTPUT);
+      pinMode(echoPin, INPUT);
+      pinMode(trigPin2, OUTPUT);
+      pinMode(echoPin2, INPUT);
+      pinMode(trigPin3, OUTPUT);
+      pinMode(echoPin3, INPUT);
+      pinMode(trigPin4, OUTPUT);
+      pinMode(echoPin4, INPUT);
+  
+
+  // 적외선 장애물 감지 센서의 상태를 확인하기 위하여 시리얼 통신의 속도를 설정합니다.
   Serial.begin(9600);
-  pinMode(D3, INPUT);
-  mlx.begin();      //적외선 온도 센서
-  //connectWifi();  //와이파이 커넥션
 }
- 
+
+// setup() 함수가 호출된 이후, loop() 함수가 호출되며,
+// 블록 안의 코드를 무한히 반복 실행됩니다.
 void loop() {
- int volt = getVolt();                //적외선 거리 센서 거리 읽기
- long state = digitalRead(sensor_sr501);      //인체감지센서 상태 읽기
- float ambi_temp=mlx.readAmbientTempC();      //적외선 온도 감지 센서 주변 온도 읽기
- float obj_temp=mlx.readObjectTempC();        //타켓 온도 읽기
- float gap_temp=ambi_temp-obj_temp;
+  presence_flag=0;
+
+  double distance[4];
+  
+  long measurement =TP_init();
+  
+  // 초음파를 보낸다. 다 보내면 echo가 HIGH 상태로 대기하게 된다.
+    distance[0]=get_dis(echoPin,trigPin);
+    distance[1]=get_dis(echoPin2,trigPin2);
+    distance[2]=get_dis(echoPin3,trigPin3);
+    distance[3]=get_dis(echoPin4,trigPin4);
+
+ for(int i=0;i<4;i++){
+
+  Serial.print(distance[i]);
+  Serial.println("cm");
+  
+  Serial.print("measurment = ");
+  Serial.println(measurement);
+ }
  
- if(state == HIGH){
-    //모션 감지 센서
-    Serial.println("Motion detected!");
-    //sendSV(id,state,distance,ambit,objt);
-  } 
-  else {
-    Serial.println("Motion absent!");
-    //sendSV(id,state,distance,ambit,objt);
+   if(idx != IDX_SIZE-1){
+    for(int i=0;i<4;i++){ 
+      len_payload[i]+=String(distance[i])+",";
+      vib_payload[i]+=String(measurement)+",";
+    }
   }
-  //적외선 거리 센서
-  Serial.print("volt : ");
-  Serial.println(volt);
-  //적외선 온도 센서
-  Serial.print("Ambient = "); 
-  Serial.println(ambi_temp); 
-  Serial.print("Object = "); 
-  Serial.println(obj_temp);
-  Serial.print("gap = "); 
-  Serial.println(gap_temp);  
-  delay(3000);
-}
- void connectWifi(){
-  Serial.print("Connecting to "+*MY_SSID);
-  WiFi.begin(MY_SSID, MY_PWD);
-  while (WiFi.status() != WL_CONNECTED) {
-    delay(1000);
-    Serial.print(".");
+  else{
+    for(int i=0;i<4;i++){
+      len_payload[i]+=String(distance[i]);
+      vib_payload[i]+=String(measurement);
+    }
   }
-  Serial.println("");
-  Serial.println("Connected");
-  Serial.println("");  
-}//end connect
-
-int getVolt(){
-    float volt;  // 전압(V)
-    double dist; // 거리(cm)
-    volt = analogRead(PIN_A0);// 센서로부터의 출력 전압
-    return volt;
+   //서버 전송
+  if(idx==IDX_SIZE-1){
+    //장애물 감지 센서
+    for(int i=0;i<4;i++){
+       sendSV(C_id, T_id, S_id, len_payload[i],vib_payload[i], presence_flag);
+       len_payload[i]="";
+       vib_payload[i]="";
+    }
+    idx=0;
+  }
+  else
+    idx++;
+  delay(100);
+  
 }
 
+float get_dis(int echo ,int trig){
+  float duration;
+  
+  digitalWrite(trig, HIGH);
+  delay(10);
+  digitalWrite(trig, LOW);
+   
+  duration = pulseIn(echo, HIGH); 
+  return ((float)(340 * duration) / 10000) / 2;
+}
 
-void sendSV(int id,long state, int distance ,float ambit,float objt )
+long TP_init(){
+  delay(10);
+  long measurement=pulseIn (vib, HIGH);
+  return measurement;
+}
+
+void sendSV(String C_id, String T_id, String S_id, String len_payload, String vib_payload, int presence_flag)
 {  
    WiFiClient client;
      if (client.connect(server2, 3000)) { 
    Serial.println("SV WiFi Client connected ");
    
-   //client.print("GET /data HTTP/1.1\n");
-   
-    String getheader = "GET /data?id="+ String(id)+"&state="+ String(state)+"&distance="+ String(distance) +"&ambit="+ String(ambit) +"&objt="+ String(objt) +" HTTP/1.1";
-    client.println(getheader);
-    client.println("User-Agent: ESP8266 ");  
+   String getheader = "GET /data?C_id="+ String(C_id)+ "&T_id="+ String(T_id)+ "&S_id="+ String(S_id)
+   +"&len="+ String(len_payload)+"&vib="+ String(vib_payload) +"&state="+ String(presence_flag) +" HTTP/1.1";
+   client.println(getheader);
+   client.println("User-Agent: ESP8266 ");  
    client.print("Host: 3.16.161.61\n");
    client.print("Connection: close\n");
    client.print("\n\n");
 
    delay(1000);
-   //delay(15000);
-
   }
   client.stop();
+}
+
+void connectWifi(){
+  Serial.println();
+  Serial.print("connecting to WiFi: ");
+  Serial.println(MY_SSID);
+  WiFi.begin(MY_SSID,MY_PWD);
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+    Serial.print(".");
+  }
+  Serial.print("\n Got WiFi, IP address: ");
+  Serial.println(WiFi.localIP());   
 }
