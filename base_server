@@ -1,217 +1,82 @@
-var express = require('express');
-var app = express();
-const fs = require('fs');
-var dateTime = require('node-datetime');
-mysql = require('mysql');
-
-var user = require('./inform');
-
-var connection = mysql.createConnection({
-
-        host: user.host,
-        user: user.user,
-        password: user.password,
-        database: user.database,
-    //host: 'localhost',
-    //user: 'me2',
-    //password: '',
-    //database: 'mytemp'
-})
-connection.connect();
-
-
-app.get('/', function(req, res) {
-  res.send('Hello World!');
-});
-
-var seq=0;
-var seq2=0;
-
-function insert_sensor(value,time) {
-  obj = {};
-  //obj.seq = seq;
-  //obj.device = device;
-  //obj.unit = unit;
-  //obj.type = type;
-  obj.value = value;
-        obj.time =time;
-  //obj.ip = ip.replace(/^.*:/, '')
-
-  var query = connection.query('insert into sensors set ?', obj, function(err, rows, cols) {
-    if (err) throw err;
-    console.log("database insertion ok= %j", obj);
-  });
-}
-app.get('/log',function(req,res){
-
-
-        res.send('log is');
-
-
-        /*fs.appendFile('log.txt', JSON.stringify(req.query)+"\n",function (err){
-        if (err) throw err
-        console.log("%j",req.query);
-        res.end("Got "+String(seq++) + " "+JSON.stringify(req.query));
-        });*/
-})
-
-
-app.get('/data',function(req,res){
-
-
-        //var date = req.query.date;
-
-        var temper = req.query.temper;
-        var moment = require('moment');
-        require('moment-timezone');
-        moment.tz.setDefault("Asia/Seoul");
-        var date= moment().format('YYYY-MM-DD HH:mm:ss');
-
-//      require('date-utils');
-//      var newDate = new Date();
-//      var time = newDate.toFormat('YYYY-MM-DD HH24:MI:SS');
-//      var date=time;
-        //var dt = dateTime.create();
-        //var date = dt.format('Y-m-d H:M:S');
-
-        //console.log(date);
-        var temp=new Date(date).toLocaleString().split(' ');
-        //var temp=date.split(' ');
-        //console.log(temp);
-
-        var ymd=temp[0].split('/');
-        //console.log(ymd);
-        var temp2=ymd[2].split(',');
-
-        for(var k=0;k<2;k++){
-        if(ymd[k]<10)
-                ymd[k]="0"+ymd[k];
-        }
-        var hms = temp[1].split(':');
-        //console.log(hms);
-
-        if(temp[2]=='PM' && hms[0]<12){
-        hms[0]=Number(hms[0])+12;
-        //console.log(hms[0]);
-        }
-
-
-
-        fs.appendFile('data.txt',temp2[0]+ymd[0]+ymd[1]+","+String(hms[0])+":"+String(hms[1])+":"+String(hms[2])+","+String(temper)+"\n",function (err){
-        if (err) throw err
-        console.log("Arduino to server ok = %j",req.query.temper);
-        res.end("Got "+String(seq++) + " "+JSON.stringify(req.query));
-        });
-
-        insert_sensor(temper,date);
-        //res.end('OK:' + JSON.stringify(req.query));
-})
-
-
-app.get('/dump',function(req,res){
-
-
-        var count = req.query.count;
-        var fs=require("fs");
-
-        data=fs.readFileSync('data.txt','utf-8')
-
-        var temp='\0';
-        var result='\0';
-
-        result =data.split("\n");
-
-        for(var i=result.length-2;i>=result.length-count-1;i--){
-
-
-                if(i>=0){
-                        temp+=result[i]+"::";
-
-                }
-        }
-
-                var rev= temp.split("::");
-                ret="\0";
-
-                for(var i=rev.length-2;i>=0;i--){
-
-                ret+=rev[i]+'</br>';
-                }
-
-        res.send(ret)
-        res.end(seq++);
-
-        })
-
-app.get('/graph', function (req, res) {
-    console.log('got app.get(graph)');
-    var html = fs.readFile('./graph.html', function (err, html) {
-    html = " "+ html
-    console.log('read file');
-
-        var header="";
-
-   //var qstr = 'SELECT * from sensors';
-            var qstr = 'SELECT * from sensors ORDER BY time';
-    connection.query(qstr, function(err, rows, cols) {
-      if (err) throw err;
-        var flag = 1;
-      var data = "";
-      var comma = ""
-            var first="";
-            var last="";
-
-      for (var i=0; i< rows.length; i++) {
-         r = rows[i];
-                //console.log(r.time);
-               //data += comma + "[new Date(2019,03-09,00,38,"+r.id+"),"+ r.value +"]";
-        var date=new Date(r.time).toLocaleString().split(' ');
-              //console.log(date);
-        var ymd=date[0].split('/');
-              //console.log(ymd);
-        var hms=date[1].split(':');
-
-              if(date[2]=='AM'&&hms[0]==12){
-                      hms[0]='0';
-              }
-        if(date[2]=='PM' && hms[0]<12){
-        hms[0]=Number(hms[0])+12;
-                hms[0]=String(hms[0]);
-       // console.log(hms[0]);
-        }
-
-            //  console.log(hms);
-        data+=comma+"[new Date("+ymd[2]+String(Number(ymd[0])-1)+","+ymd[1]+","+hms[0]+","+hms[1]+","+hms[2]+"),"+r.value + "]";
-              comma = ",";
-        var shim = ymd[2].split(',');
-              if(flag==1){
-                      flag=0;
-                first=shim[0]+"-"+ymd[0]+"-"+ymd[1]+" "+hms[0]+":"+hms[1]+":"+hms[2] ;
-
-              }
-
-      }
-            last=shim[0]+"-"+ymd[0]+"-"+ymd[1]+" "+hms[0]+":"+hms[1]+":"+hms[2] ;
-      header = "data.addColumn('date', 'Date/Time');"
-      header += "data.addColumn('number', 'Temperature');"
-      html = html.replace("<%HEADER%>", header);
-      html = html.replace("<%DATA%>", data);
-            html = html.replace("<%first-time%>",first);
-            html = html.replace("<%last-time%>",last);
-
-      res.writeHeader(200, {"Content-Type": "text/html"});
-      res.write(html);
-      res.end();
-    });
-  });
-})
-
-
-var server = app.listen(3000, function () {
-  var host = server.address().address
-  var port = server.address().port
-  console.log('listening at http://%s:%s', host, port)
-});
-//app.listen(3000, function () {
-//  console.log('Example app listening on port 3000!');
-//})
+  1 var express = require('express');
+  2 var app = express();
+  3 const fs = require('fs');
+  4 var dateTime = require('node-datetime');
+  5 mysql = require('mysql');
+  6
+  7 var user = require('./inform');
+  8
+  9 var connection = mysql.createConnection({
+ 10
+ 11         host: user.host,
+ 12         user: user.user,
+ 13         password: user.password,
+ 14         database: user.database,
+ 15
+ 16 })
+ 17 connection.connect();
+ 18
+ 19
+ 20 var seq=0;
+ 21 var seq2=0;
+ 22
+ 23 function insert_sensor(c_id,t_id,s_id,len,vib,state,time) {
+ 24   obj = {};
+ 25   obj.C_id = c_id;
+ 26   obj.S_id = s_id;
+ 27   obj.T_id = t_id;
+ 28   obj.len = len;
+ 29   obj.vib = vib;
+ 30   obj.flag=state;
+ 31   obj.time = time;
+ 32
+ 33         obj2 = {};
+ 34         obj2.C_id=c_id;
+ 35         obj2.S_id=s_id;
+ 36         obj2.T_id=t_id;
+ 37         obj2.flag=state;
+ 38         obj2.time=time;
+ 39
+ 40   var query = connection.query('insert into save set ?', obj, function(err, rows, cols) {
+ 41     if (err) throw err;
+ 42     console.log("database table 'save' insertion ok");
+ 43   });
+ 44
+ 45   var query2 = connection.query('insert into app set ?', obj2, function(err, rows, cols) {
+ 46     if (err) throw err;
+ 47 console.log("database table 'app' insertion ok");
+ 48   });
+ 49 }
+ 50
+ 51 app.get('/data',function(req,res){
+ 52
+ 53         var C_id = req.query.C_id;
+ 54         var T_id = req.query.T_id;
+ 55         var S_id = req.query.S_id;
+ 56
+ 57         var len = req.query.len;
+ 58         var vib = req.query.vib;
+ 59         var state = req.query.state;
+ 60
+ 61         var moment = require('moment');
+ 62         require('moment-timezone');
+ 63         moment.tz.setDefault("Asia/Seoul");
+ 64         var date= moment().format('YYYY-MM-DD HH:mm:ss');
+ 65
+ 66         console.log("c_id = %j , t_id = %j s_id = %j len_payload =%j vib_payload = %j presence = %j ",C_id,T_id,S_id,len,vib,state);
+ 67
+ 68         fs.appendFile('data.csv',C_id+","+T_id+","+S_id+","+String(len)+","+String(vib)+","+state+"\n",function (err){
+ 69         if (err) throw err
+ 70         });
+ 71
+ 72          insert_sensor(C_id,T_id,S_id,len,vib,state,date);
+ 73
+ 74 });
+ 75
+ 76
+ 77 var server = app.listen(4885, function () {
+ 78   var host = server.address().address
+ 79   var port = server.address().port
+ 80   console.log('listening at http://%s:%s', host, port)
+ 81 });
+ 82
