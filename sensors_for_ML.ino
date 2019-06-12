@@ -1,6 +1,7 @@
 #include <Wire.h>
 #include <ESP8266WiFi.h>
 #define DIST_S 100*58.2
+#define IDX_SIZE 80
 
 //장애물 감지 센서
 int sensorpin = D4; // out for D4(장애물 감지 센서값을 읽을 단자 설정)
@@ -30,7 +31,7 @@ int presence_flag=0;     //presence of the table
 int idx;
 String len_payload;
 String vib_payload;
-#define IDX_SIZE 60
+
  
 void setup(){
   delay(10000);
