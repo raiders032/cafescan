@@ -1,5 +1,6 @@
 #include <Wire.h>
 #include <ESP8266WiFi.h>
+#define DIST_S 100*58.2
 
 //장애물 감지 센서
 int sensorpin = D4; // out for D4(장애물 감지 센서값을 읽을 단자 설정)
@@ -121,7 +122,7 @@ double get_length(){
   digitalWrite(PIN_D1, HIGH);
   delayMicroseconds(10); 
   digitalWrite(PIN_D1, LOW);
-  duration = pulseIn(PIN_D2, HIGH); // 왕복한 시간
+  duration = pulseIn(PIN_D2, HIGH, DIST_S); // 왕복한 시간
   distance = (duration/2) / 29.0; // 거리 = 시간 x 속도, 소리의 속도 29um/cm
   //if(distance>init_len)
     //distance-=init_len;
