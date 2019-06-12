@@ -1,6 +1,6 @@
 #include <Wire.h>
 #include <ESP8266WiFi.h>
-
+#define DIST_S 100*58.2
 
 const char* server2 = "3.16.161.61";
 //String apiKey ="XLTL6DFFAB7QER25";
@@ -120,7 +120,7 @@ float get_dis(int echo ,int trig){
   delay(10);
   digitalWrite(trig, LOW);
    
-  duration = pulseIn(echo, HIGH); 
+  duration = pulseIn(echo, HIGH, DIST_S); 
   return ((float)(340 * duration) / 10000) / 2;
 }
 
