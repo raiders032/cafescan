@@ -8,6 +8,7 @@ int detec_val; // 센서값
 //초음파 거리 센서
 #define PIN_D1 5 // TRIGGER for HC-SR04(초음파 거리 센서)
 #define PIN_D2 4 // ECHO for HC-SR04(초음파 거리 센서)
+#define init_len 5// 초음파 거리 측정 부분부터 책상 끝까지의 거리 
 
 //진동 감지 센서
 int vib =D8;     // DO for SW-420(진동감지)
@@ -17,13 +18,13 @@ const char* private_server = "54.180.101.233";
 const int serverPort       = 4885;
 
 // Information to connect private Wifi
-const char* ssid     = "2363";
-const char* password = "47552363";
+const char* ssid     = "2363";//"myPassword"; 2363
+const char* password = "47552363";//"myWifi"; 47552363
 
 //global variable
-String C_id="001";            //cafe id
-String T_id="001";              //table id
-String S_id="010";              //seat id 
+String C_id="001";       //cafe id
+String T_id="001";       //table id
+String S_id="010";       //seat id 010,011 for ML
 int presence_flag=0;     //presence of the table
 int idx;
 String len_payload;
@@ -31,6 +32,7 @@ String vib_payload;
 #define IDX_SIZE 60
  
 void setup(){
+  delay(10000);
   idx=0;
   len_payload="";
   vib_payload="";
@@ -40,7 +42,7 @@ void setup(){
   pinMode(PIN_D2, INPUT);  // 초음파 수신부 D2를 input으로
   pinMode (sensorpin, INPUT); // 센서값을 인풋으로 설정 장애물 감지 센서
   Serial.begin(9600); //시리얼통신 설정 9600
-  Serial.println("----------------------start------------------------");
+  Serial.println("start------------------------->");
 }
 
 void loop(){
@@ -121,28 +123,32 @@ double get_length(){
   digitalWrite(PIN_D1, LOW);
   duration = pulseIn(PIN_D2, HIGH); // 왕복한 시간
   distance = (duration/2) / 29.0; // 거리 = 시간 x 속도, 소리의 속도 29um/cm
-  return distance; 
+  //if(distance>init_len)
+    //distance-=init_len;
+  return distance;
 }
 
 long TP_init(){
   //delay(10);
   long measurement=pulseIn (vib, HIGH);
-  if(measurement>1000)
-    measurement=1000;
   return measurement;
 }
 
-void sendSV(String C_id, String T_id, String S_id, String len_payload, String vib_payload, int presence_flag){  
+void sendSV(String C_id, String T_id, String S_id, String len_payload, String vib_payload, int presence_flag)
+{  
    WiFiClient client;
-   if (client.connect(private_server, serverPort)) { 
-       Serial.println("SV WiFi Client connected ");
-       String getheader = "GET /data?C_id="+ C_id + "&T_id="+ T_id + "&S_id="+ S_id
-       +"&len="+ len_payload +"&vib="+ vib_payload +"&state="+ String(presence_flag) +" HTTP/1.1";
-       client.println(getheader);
-       client.println("User-Agent: ESP8266 ");  
-       client.print("Host: 3.16.161.61\n");
-       client.print("Connection: close\n");
-       client.print("\n\n");
+     if (client.connect(private_server, serverPort)) { 
+   Serial.println("SV WiFi Client connected ");
+   
+   String getheader = "GET /data?C_id="+ String(C_id)+ "&T_id="+ String(T_id)+ "&S_id="+ String(S_id)
+   +"&len="+ String(len_payload)+"&vib="+ String(vib_payload) +"&state="+ String(presence_flag) +" HTTP/1.1";
+   client.println(getheader);
+   client.println("User-Agent: ESP8266 ");  
+   client.print("Host: 54.180.101.233\n");
+   client.print("Connection: close\n");
+   client.print("\n\n");
+
+   delay(1000);
   }
   client.stop();
 }
