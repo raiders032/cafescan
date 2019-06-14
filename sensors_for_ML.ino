@@ -98,7 +98,7 @@ void loop(){
     Serial.println(vib_payload);
     Serial.print("presence_flag: ");
     Serial.println(presence_flag);
-    sendSV(C_id, T_id, S_id, len_payload,vib_payload, presence_flag);
+    sendSV(ID, len_payload,vib_payload, presence_flag);
     len_payload="";
     vib_payload="";
     idx=0;
