@@ -35,7 +35,7 @@ String vib_payload[4];
 
 void setup() {
     idx=0;
-    for(int i=0;i<4;i++){
+    for(int i=0;i<UNIT_NUM;i++){
       len_payload[i]="";
       vib_payload[i]="";
     }
@@ -63,20 +63,20 @@ void loop() {
   distance[3]=get_dis(echoPin4,trigPin4);
  
  //print result 
- for(int i=0;i<4;i++){
+ for(int i=0;i<UNIT_NUM;i++){
   Serial.print(distance[i]);
   Serial.println("cm");
   Serial.print("measurment = ");
   Serial.println(measurement);
  }
  if(idx != IDX_SIZE-1){
-  for(int i=0;i<4;i++){ 
+  for(int i=0;i<UNIT_NUM;i++){ 
     len_payload[i]+=String(distance[i])+",";
     vib_payload[i]+=String(measurement)+",";
   }
  }
  else{
-   for(int i=0;i<4;i++){
+   for(int i=0;i<UNIT_NUM;i++){
      len_payload[i]+=String(distance[i]);
      vib_payload[i]+=String(measurement);
    }
