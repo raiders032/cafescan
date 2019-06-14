@@ -1,7 +1,12 @@
 #include <Wire.h>
 #include <ESP8266WiFi.h>
-#define DIST_S 100*58.2
-#define IDX_SIZE 80
+#define DIST_S 1600*58.2 //
+#define IDX_SIZE 100
+
+String C_id="C01";       //cafe id
+String T_id="T01";       //table id
+String S_id="S01";       //seat id 
+String ID = C_id + T_id +S_id;
 
 //장애물 감지 센서
 int sensorpin = D4; // out for D4(장애물 감지 센서값을 읽을 단자 설정)
@@ -12,21 +17,23 @@ int detec_val; // 센서값
 #define PIN_D2 4 // ECHO for HC-SR04(초음파 거리 센서)
 #define init_len 5// 초음파 거리 측정 부분부터 책상 끝까지의 거리 
 
+int echoPin2 = D3;
+int trigPin2 = D4;
+
+
 //진동 감지 센서
 int vib =D8;     // DO for SW-420(진동감지)
 
 // Information to connect My Private Server EC2
-const char* private_server = "54.180.101.233"; 
-const int serverPort       = 4885;
+const char* private_server = "13.124.211.94";//54.180.101.233"; 
+const int serverPort       = 3000;
 
 // Information to connect private Wifi
-const char* ssid     = "2363";//"myPassword"; 2363
-const char* password = "47552363";//"myWifi"; 47552363
+const char* ssid     = "no";//"myPassword"; 2363
+const char* password = "c987654321";//"myWifi"; 47552363
 
 //global variable
-String C_id="001";       //cafe id
-String T_id="001";       //table id
-String S_id="010";       //seat id 010,011 for ML
+
 int presence_flag=0;     //presence of the table
 int idx;
 String len_payload;
@@ -136,17 +143,21 @@ long TP_init(){
   return measurement;
 }
 
-void sendSV(String C_id, String T_id, String S_id, String len_payload, String vib_payload, int presence_flag)
+void sendSV(String ID, String len_payload, String vib_payload, int presence_flag)
 {  
    WiFiClient client;
      if (client.connect(private_server, serverPort)) { 
    Serial.println("SV WiFi Client connected ");
    
-   String getheader = "GET /data?C_id="+ String(C_id)+ "&T_id="+ String(T_id)+ "&S_id="+ String(S_id)
-   +"&len="+ String(len_payload)+"&vib="+ String(vib_payload) +"&state="+ String(presence_flag) +" HTTP/1.1";
+   String getheader = 
+   "GET /data?ID="+ String(ID) 
+   +"&len="+ String(len_payload)
+   +"&vib="+ String(vib_payload) 
+   +"&state="+ String(presence_flag) +" HTTP/1.1";
+   
    client.println(getheader);
    client.println("User-Agent: ESP8266 ");  
-   client.print("Host: 54.180.101.233\n");
+   client.print("Host: 13.124.211.94\n");
    client.print("Connection: close\n");
    client.print("\n\n");
 
