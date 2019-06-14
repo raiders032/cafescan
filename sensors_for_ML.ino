@@ -132,14 +132,14 @@ double get_length(){
   digitalWrite(PIN_D1, LOW);
   duration = pulseIn(PIN_D2, HIGH, DIST_S); // 왕복한 시간
   distance = (duration/2) / 29.0; // 거리 = 시간 x 속도, 소리의 속도 29um/cm
-  //if(distance>init_len)
-    //distance-=init_len;
   return distance;
 }
 
 long TP_init(){
   //delay(10);
   long measurement=pulseIn (vib, HIGH);
+  if(measurement>1000)
+   measurement=1000;
   return measurement;
 }
 
