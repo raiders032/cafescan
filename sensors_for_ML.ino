@@ -67,7 +67,7 @@ void loop(){
   delay(10);
   
   //진동센서
-  long measurement =TP_init();
+  long measurement =0;//TP_init();
   Serial.print("measurment");
   Serial.print(String(idx)+": ");
   Serial.println(measurement);
