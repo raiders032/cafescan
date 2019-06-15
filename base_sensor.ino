@@ -5,11 +5,13 @@
 #define IDX_SIZE 100
 #define UNIT_NUM 2  //the number of sensor
 
-using std::string;
-const char* server2 = "3.16.161.61";
-const char* MY_SSID = "myWifi";
-const char* MY_PWD = "myPassword";
+// Information to connect My Private Server EC2
+const char* private_server = "54.180.101.233"; 
+const int serverPort       = 4885;
 
+// Information to connect private Wifi
+const char* MY_SSID     = "no";
+const char* MY_PWD = "c987654321";
 
 int vib =D0;
 int echoPin = D1;
@@ -128,7 +130,7 @@ long TP_init(){
 
 void sendSV(String ID, String len_payload, String vib_payload){  
    WiFiClient client;
-     if (client.connect(server2, 3000)) { 
+     if (client.connect(private_server, serverPort)) { 
    Serial.println("SV WiFi Client connected ");
    
    String getheader = "GET /data?ID="+ String(ID) 
