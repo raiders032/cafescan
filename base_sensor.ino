@@ -125,6 +125,8 @@ float get_dis(int echo ,int trig){
 long TP_init(){
   delay(10);
   long measurement=pulseIn (vib, HIGH);
+  if(measurement>1000)
+     measurement=1000;
   return measurement;
 }
 
