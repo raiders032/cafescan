@@ -56,7 +56,7 @@ void setup() {
 
 void loop() {
   double distance[4];
-  long measurement =TP_init();
+  long measurement =0; //TP_init();
   
   //get distance
   distance[0]=get_dis(echoPin,trigPin);
