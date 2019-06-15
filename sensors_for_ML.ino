@@ -1,7 +1,7 @@
 #include <Wire.h>
 #include <ESP8266WiFi.h>
 #define DIST_S 1600*58.2 //
-#define IDX_SIZE 100
+#define IDX_SIZE 400
 
 String C_id="101";       //cafe id
 String T_id="101";       //table id
@@ -88,14 +88,17 @@ void loop(){
     if (detec_val == LOW) { // 장애물 감지 안됨
       presence_flag=1;
     }
-    Serial.print("table id: ");
-    Serial.println(T_id);
-    Serial.print("seat id: ");
-    Serial.println(S_id);
+    /*
+    
     Serial.println("len payload: ");
     Serial.println(len_payload);
     Serial.println("vib payload: ");
     Serial.println(vib_payload);
+    */
+    Serial.print("table id: ");
+    Serial.println(T_id);
+    Serial.print("seat id: ");
+    Serial.println(S_id);
     Serial.print("presence_flag: ");
     Serial.println(presence_flag);
     sendSV(ID, len_payload,vib_payload, presence_flag);
