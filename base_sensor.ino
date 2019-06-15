@@ -5,6 +5,7 @@
 #define IDX_SIZE 100
 #define UNIT_NUM 2  //the number of sensor
 
+using std::string;
 const char* server2 = "3.16.161.61";
 const char* MY_SSID = "myWifi";
 const char* MY_PWD = "myPassword";
@@ -20,13 +21,12 @@ int trigPin3 = D6;
 int echoPin4 = D7;
 int trigPin4 = D8;
 
-String C_id="C01";              
-String T_id="T01"; 
-String ID[4] ; 
-String ID[0] = C_id+ T_id+ "S01";   
-String ID[1] = C_id+ T_id+ "S02";   
-String ID[2] = C_id+ T_id+ "S03";   
-String ID[3] = C_id+ T_id+ "S04";            
+String C_id="101";              
+String T_id="101"; 
+String S1 = C_id+ T_id+ "101";   
+String S2 = C_id+ T_id+ "102";   
+String S3 = C_id+ T_id+ "103";   
+String S4 = C_id+ T_id+ "104";            
    
 int idx;
 
@@ -84,8 +84,23 @@ void loop() {
  
    //sending the data to server
   if(idx==IDX_SIZE-1){
-    for(int i=0; i<UNIT_NUM;i++){
-          sendSV(ID[i], len_payload[i], vib_payload[i])
+    if(UNIT_NUM==1){
+      sendSV(S1,len_payload[0], vib_payload[0]);
+    }
+    else if(UNIT_NUM==2){
+      sendSV(S1,len_payload[0], vib_payload[0]);
+      sendSV(S2,len_payload[1], vib_payload[1]);
+    }
+    else if(UNIT_NUM==3){
+      sendSV(S1,len_payload[0], vib_payload[0]);
+      sendSV(S2,len_payload[1], vib_payload[1]);
+      sendSV(S3,len_payload[2], vib_payload[2]);
+    }
+    else{
+      sendSV(S1,len_payload[0], vib_payload[0]);
+      sendSV(S2,len_payload[1], vib_payload[1]);
+      sendSV(S3,len_payload[2], vib_payload[2]);
+      sendSV(S4,len_payload[3], vib_payload[3]);
     }
     idx=0;
   }
