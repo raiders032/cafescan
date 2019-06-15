@@ -3,9 +3,9 @@
 #define DIST_S 1600*58.2 //
 #define IDX_SIZE 100
 
-String C_id="C01";       //cafe id
-String T_id="T01";       //table id
-String S_id="S01";       //seat id 
+String C_id="101";       //cafe id
+String T_id="101";       //table id
+String S_id="111";       //seat id 
 String ID = C_id + T_id +S_id;
 
 //장애물 감지 센서
