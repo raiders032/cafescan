@@ -104,6 +104,10 @@ void loop() {
       sendSV(S3,len_payload[2], vib_payload[2]);
       sendSV(S4,len_payload[3], vib_payload[3]);
     }
+    for(int i=0;i<UNIT_NUM;i++){
+      len_payload[i]="";
+      vib_payload[i]="";
+    } 
     idx=0;
   }
   else
