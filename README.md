@@ -30,8 +30,8 @@ CAFESCAN - 자리창출넘버원
         + AWS EC2 서버에서 받은 데이터는 node.js로 작성된 코드에 따라 DB에 저장된다.
     - MySQL
         + MySQL은 분류된 값과 등록된 시간 값을 같이 데이터베이스로 저장하며 데이터는 계속 누적된다.
-    - Python
-        + keras를 이용해 Labels of training set을 바탕으로 supervised learning을 해서 머신러닝 모델을 만든다.
+    - Machine Learning
+        + Python의 keras를 이용해 Labels of training set을 바탕으로 supervised learning을 해서 머신러닝 모델을 만든다.
     - HTML
         + 저장된 데이터들을 이용해서 시간, 요일별 통계치를 얻어 웹 페이지에 표현한다.
 4. 데이터 사용
